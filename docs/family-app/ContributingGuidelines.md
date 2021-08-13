@@ -29,6 +29,6 @@ They are defined by google and everything is managed by flutter - indentations, 
 
 ### Other
 
-To install the stack, see [Getting Started](/docs/family-app/getting-started), and the [Build and Deploy](/docs/family-app/new-release).
+To install the stack, see [Getting Started](/docs/family-app/getting-started), and the [Build and Deploy](/docs/family-app/new_release).
 
 Feel free to ask us questions !
