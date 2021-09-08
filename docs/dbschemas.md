@@ -2,6 +2,8 @@
 sidebar_position: 2
 ---
 
+import Mermaid from '@theme/mermaid'
+
 # DB Schema
 
 ---
@@ -11,7 +13,8 @@ sidebar_position: 2
 * FirestoreDb
   * Collections
   * References
-* RealtimeDb
+  * Types
+* RealtimeDb - Not Implemented
 
 ---
 
@@ -23,7 +26,7 @@ The FirestoreDB will store the permanent data of conversations, users, etc
 | --------------- | ----------------- |
 | users | Stores the users details that are not saved by the FirebaseAuth. |
 | conversations | Stores the conversations details : 2 peoples + lastRead + lastMessageRef |
-| messages | Stores the message : conversationId + createdDate + read |
+| messages -- obsolete | Stores the message : conversationId + createdDate + read |
 | families | Stores the families details : members + code + name |
 
 
@@ -32,60 +35,57 @@ The FirestoreDB will store the permanent data of conversations, users, etc
 
 > The User document does not have the email as it is stored with the FirebaseAuth. 
 
-```dart
-class User {
-    final DateTime createdAt;
-    final DateTime lastLogin;
-    final String firstName;
-    final String lastName;
-	final DocumentReference family;
+```TypeScript
+interface User {
+    firstName: string
+    lastName: string
+	familyId: string
 }
 ```
 
-```dart
-class Conversation {
-    final List<DocumentReference> members; // can be 2 people conv, or the entire family(.members) 
-    final DateTime lastRead;
-    final String name;
-    final int msgCount;
+```TypeScript
+interface Conversation {
+    members: string[] // can be 2 people conv, or the entire family(.members) 
+    name: string
+    lastReadId: string // last read message
 }
 ```
 
-```dart
-class Message {
-    final DocumentReference conversation;
-    final DocumentReference sender;
-    final String content;
-    final DateTime createdAt;
-    // final bool read;
+```TypeScript
+interface Message {
+    conversationId: string
+    senderId: string
+    content: string
+    read: boolean
 }
 ```
 
-```dart
-class Families {
-    final List<DocumentReference> members;
-    final String name;
-    final String code; // sha1(familyName + Date.now()).slice(0, 9)
+```TypeScript
+interface Family {
+    members: stirng[]
+    name: string
+    code: string // sha1(familyName + Date.now()).slice(0, 9)
 }
 ```
 
-```mermaid
-stateDiagram-v2
-    FirestoreDB --> users
-    FirestoreDB --> families
-    FirestoreDB --> conversations
-    FirestoreDB --> messages
-    users --> user[obj]
-    families --> family[obj]
-    conversations --> conversation[obj]
-    family[obj] --> user[obj]
-    user[obj] --> family[obj]
-    messages --> message[obj]
-    message[obj] --> conversation[obj]
-    conversation[obj] --> user[obj]
-```
+<Mermaid chart={`
+    stateDiagram-v2
+        FirestoreDB --> users
+        FirestoreDB --> families
+        FirestoreDB --> conversations
+        conversations --> messages
+        users --> user[obj]
+        families --> family[obj]
+        conversations --> conversation[obj]
+        family[obj] --> user[obj]
+        user[obj] --> family[obj]
+        messages --> message[obj]
+        message[obj] --> conversation[obj]
+        conversation[obj] --> user[obj]
+`}/>
 
-## RealtimeDB
+
+## RealtimeDB - Not Implemented
 
 The RTDB stores the data as json. When a conversation is opened, load the last 10 messages in RTDB, and add all other messages afterwards. When conversation is closed, save all messages into FirestoreDB.
 
